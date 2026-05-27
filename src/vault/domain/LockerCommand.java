@@ -12,13 +12,24 @@ public sealed interface LockerCommand permits
         LockerCommand.EncryptFile,
         LockerCommand.DecryptFile {
 
-    record StorePassword(
+    public static record StorePassword(
             String serviceName,
             String username,
             byte[] plainPassword
     ) implements LockerCommand {
+
+        // Compact Constructor - Defensive copy on input
         public StorePassword {
-            plainPassword = plainPassword.clone();
+            if (plainPassword == null) {
+                throw new IllegalArgumentException("Payload cannot be null");
+            }
+            plainPassword = plainPassword.clone(); // Isolate the reference instantly
+        }
+
+        // Accessor Override - Defensive copy on output
+        @Override
+        public byte[] plainPassword() {
+            return this.plainPassword.clone();
         }
     }
 
